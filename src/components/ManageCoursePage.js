@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CourseForm from './CourseForm';
-import * as courseApi from "../api/courseApi";
-
+import * as courseActions from "../actions/courseActions";
+import courseStore from "../stores/courseStore";
 
 function ManageCoursePage(props){
   const [errors, setErrors] = useState({});
+  const [courses, setCourses] = useState(courseStore.getCourses());
   const [course, setCourse] = useState({
     id: null,
     title: "",
@@ -13,6 +14,24 @@ function ManageCoursePage(props){
     category: ""
   });
 
+  useEffect(() => {
+    courseStore.addChangeListener(onChange);
+
+    const slug = props.match.params.slug;
+
+    if(courses.length === 0){
+      courseActions.loadCourses();
+    }else if(slug){
+      // useEffect will run second time when course.length dependency changes
+      setCourse(courseStore.getCourseBySlug(slug)); 
+    }
+
+    return () => courseStore.removeChangeListener(onChange);
+  }, [courses.length, props.match.params.slug]);
+
+  const onChange = () => {
+    setCourses(courseStore.getCourses()); 
+  };
   const handeChange = (event) => {
     const { target } = event;
     // ...course, [target.name]: target.value syntax means, copy of courses object, and second parameter means modify property on the copy [target.name] to target.value
@@ -26,11 +45,14 @@ function ManageCoursePage(props){
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!formIsValid()) return;
-    courseApi.saveCourse(course).then(() => {
-      console.log(course);
-      props.history.push("/courses");
-      //toast.success("Course saved.");
+    courseActions.saveCourse(course).then(() => {
+      props.history.push("/courses"); 
     });
+    //courseApi.saveCourse(course).then(() => {
+    //  console.log(course);
+    //  props.history.push("/courses");
+    //  //toast.success("Course saved.");
+    //});
   }
 
   const formIsValid = () => {

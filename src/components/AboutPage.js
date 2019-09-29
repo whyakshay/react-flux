@@ -1,8 +1,5 @@
 import React, { Component, useState } from 'react';
-import {getAuthors} from '../api/authorApi';
 import {getCourses} from '../api/courseApi';
-
-
 
 class AboutPage extends Component{
 
