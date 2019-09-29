@@ -14,6 +14,9 @@ function Course(props){
       <td>
         {props.author.id}
       </td>
+      <td>
+        <button className="btn btn-warning" onClick={() => props.handleDelete(props.id)} >Delete</button>
+      </td>
     </tr>
   )
 }
